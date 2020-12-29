@@ -19,29 +19,35 @@ def is_present(a):
         return False,"Key does not Exist"
 def create(a,b,TTL=-1):
     global t_s
-    sReq = t_s+getsizeof({a:b})
-    if sReq>=av_size:
-        print("Memory FULL, Delete Some items")
+
     if type(a)!=str:
-        print("Key is not a string")
+        return "Key is not a string"
     elif len(a)>32:
-        print("Size of key string is greater than 16 KB")
+        return "Size of key string is greater than 32"
+    elif getsizeof(b)>16*1024:
+        return "Size of value is greater than 16 KB"
     elif a in d:
-        print("Key value pair already present")
+        return "Key value pair already present"
     else:
+        if TTL!=-1:
+            sReq = t_s+getsizeof({a:[b,TTL+time.time()]})
+        else:
+            sReq = t_s+getsizeof({a:[b,-1]})
+        if sReq>=av_size:
+            return "Memory FULL, Delete Some items"
         if TTL!=-1:
             d[a]=[b,TTL+time.time()]
         else:
             d[a]=[b,-1]
         t_s+=getsizeof(d[a])
-        print("Key Created")
+        return "Key Created" 
         
 def read(a):
     rtr,msg = is_present(a)
     if rtr:
-        print(msg[0])
+        return msg[0]
     else:
-        print(msg)
+        return msg
 
 def delete(a):
     global t_s
@@ -49,6 +55,6 @@ def delete(a):
     if rtr:
         t_s-=getsizeof(d[a])
         del d[a]
-        print("Deleted Key")
+        return "Key-Value pair Deleted"
     else:
-        print(msg)
+        return msg
